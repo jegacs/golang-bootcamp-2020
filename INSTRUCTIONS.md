@@ -15,19 +15,22 @@ To run the project:
 The server will run in localhost:8000.
 # Dependencies
 Third projects uses 
-Gin HTTP Framework https://github.com/gin-gonic/gin
-Go Convey (testing framework) https://github.com/smartystreets/goconvey
+- Gin HTTP Framework https://github.com/gin-gonic/gin
+- Go Convey (testing framework) https://github.com/smartystreets/goconvey
 
 # Endpoints and how to use
 There is two main endpoints:
+```
 GET localhost:8000/v1/:country_code/fetch <- Fetch from API and store the data file. 
 GET localhost:8000/v1/:country_code <- Read the CSV file. 
-
+```
 Both endpoints responds with JSON response. 
 The country code is ISO-1136 format (https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes).
 For example 
+```
 GET localhost:8000/v1/countries/mx/fetch
 GET localhost:8000/v1/countries/mx
+```
 
 NOTE: You do need to trigger the fetch endpoint before reading the csv the first time, so the file with the country info is stored. Otherwise 
 you'll get an 500 Internal Server Error code because there is not file with that name (i.e mx.csv)
