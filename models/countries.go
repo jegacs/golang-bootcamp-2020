@@ -4,13 +4,17 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
+	"strconv"
 )
 
 const COUNTRIES_API = "https://restcountries.eu/rest/v2/alpha/"
-const FILE_PATH = "./"
+
+var FILE_PATH = os.Getenv("COUNTRIES_FILE")
 
 type Country struct {
 	Name        string
@@ -22,6 +26,7 @@ type Country struct {
 	Population  int
 	Region      string
 	SubRegion   string
+	Code        string
 }
 
 var rows = []string{
@@ -36,15 +41,15 @@ var rows = []string{
 	"SubRegion",
 }
 
-func NewCountry(name string) *Country {
+func NewCountry(code string) *Country {
 	return &Country{
-		Name: name,
+		Code: code,
 	}
 
 }
 
 func (c *Country) Store() error {
-	f, err := os.Create(FILE_PATH + c.Name + ".csv")
+	f, err := os.Create(FILE_PATH + c.Code + ".csv")
 	if err != nil {
 		return err
 	}
@@ -78,7 +83,7 @@ func (c *Country) Store() error {
 }
 
 func (c *Country) Fetch() error {
-	resp, err := http.Get(COUNTRIES_API + c.Name)
+	resp, err := http.Get(COUNTRIES_API + c.Code)
 	if err != nil {
 		return err
 	}
@@ -98,5 +103,36 @@ func (c *Country) Fetch() error {
 }
 
 func (c *Country) ReadFile() error {
+	fileName := c.Code + ".csv"
+	file, err := os.Open(fileName)
+	if err != nil {
+		return err
+	}
+	r := csv.NewReader(file)
+	i := 0
+	for {
+		record, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+		if i == 1 {
+			c.Name = record[0]
+			c.Capital = record[1]
+			area, _ := strconv.ParseFloat(record[2], 64)
+			c.Area = area
+			gini, _ := strconv.ParseFloat(record[3], 64)
+			c.Gini = gini
+			c.NativeName = record[4]
+			c.NumericCode = record[5]
+			population, _ := strconv.ParseInt(record[6], 10, 64)
+			c.Population = int(population)
+			c.Region = record[7]
+			c.SubRegion = record[8]
+		}
+		i++
+	}
 	return nil
 }

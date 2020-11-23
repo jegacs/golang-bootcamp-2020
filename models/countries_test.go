@@ -23,3 +23,18 @@ func TestRetrieveCountry(t *testing.T) {
 	})
 
 }
+
+func TestReadFile(t *testing.T) {
+	Convey("when creating new country ", t, func() {
+		country := NewCountry("mx")
+		err := country.Fetch()
+		So(err, ShouldBeNil)
+
+		err = country.Store()
+		So(err, ShouldBeNil)
+
+		err = country.ReadFile()
+		So(err, ShouldBeNil)
+	})
+
+}
